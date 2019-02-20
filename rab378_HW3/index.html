@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Homework 3</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var port = 8080;
+            var hostname = "localhost";
+
+            $("#GoCalc").click(function () {
+                var EqChoice = $('#EqsTypes').val();
+                var Nth = $('#Nth').val();
+                var URL = "http://"+hostname+":"+port+"/"+EqChoice;
+                $.ajax({
+                    type: "GET",
+                    url: URL,
+                    contentType:
+                    "text/plain; charset=utf-8",
+                    data: {"n":Nth},
+                    dataType:"text",
+                    success: function(msg) {
+                        if(isNaN(Number(msg))){
+                            $("#answer").html(msg);
+                        }
+                        else{
+                            $("#answer").html("Answer: "+msg);
+                        }
+                       
+                        
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+				        $("#CredenPop").html("<h3>Error Connection to Server. Please Refresh Page or Start Server.</h3>");
+				        $("#CredenPop" ).popup( "open" );
+
+                    }            
+                });
+            
+             });
+        
+        });
+    </script>
+</head>
+<body>
+
+    <div id="Equ_Body">
+        <label><h3 style="text-align:center;">Enter Nth Value:</h3>
+            <input type= "text" id= "Nth" placeholder= "Nth value" style="text-align:center"/>
+         </label>
+        <fieldset>
+            <select name= "EqsTypes" id="EqsTypes">
+                <option value="fib" selected="selected">Fibonnaci</option>
+                <option value="sum">Summation</option>
+            </select>
+            <button class="ui-btn ui-corner-all ui-btn-b" id="GoCalc">Calculate</button>
+        </fieldset>
+
+    </div>
+    <div id= "answer" style="text-align:center; font-size:36px; overflow:auto">
+        <!-Answer-->
+    </div>
+    <div data-role="popup" data-transition="flip" data-position-to="window" id="CredenPop">
+	        <!--Popup to warn User-->
+    </div>
+</body>
+</html>

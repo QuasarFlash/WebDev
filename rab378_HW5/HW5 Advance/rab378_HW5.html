@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <!-- Author: Rashif Brown-->
+    <meta charset="utf-8">
+    <title>Homework 5</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <style>
+        table {
+		        /*From w3schools table example*/
+			    font-family: arial, sans-serif;
+			    border-collapse: collapse;
+			    width: 100%;
+
+		    }
+        
+		    td, th {
+			    border: 1px solid #dddddd;
+			    text-align: left;
+			    padding: 8px;
+		    }
+
+		    tr:nth-child(even) {
+			    background-color: #dddddd;
+		    }
+		    legend {
+		        font-size:18px;
+		    }
+    </style>
+    <script type="text/javascript">
+            var port = 8080;
+            var hostname = "localhost";
+        $(document).ready(function(){
+            
+            loadDropdown();
+            /*Load the dropdown menus first*/
+            $("#TableType").change(function () {
+              /*Only called if the dropdown, that has 
+              the tables changes and returns a table of that 
+              data from database */
+                var EqChoice = $('#TableType').val();
+                if(EqChoice == "None"){
+                    $("#Result").html("");
+                }
+                else{
+                    var URL = "http://"+hostname+":"+port+"/"+EqChoice;
+                    $.ajax({
+                        type: "GET",
+                        url: URL,
+                        contentType:
+                        "text/plain; charset=utf-8",
+                        dataType:"text",
+                        success: function(msg) {
+                            
+                            $("#Result").html(msg);
+
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+				                    $("#CredenPop").html("<h3>Error Connection to Server. "+
+				                                         "Please Refresh Page or Start Server.</h3>");
+				                    $("#CredenPop" ).popup( "open" );
+
+                        }            
+                    });
+                }
+            
+             });
+        
+            $("[id^=Q]").change(function () {
+                /*Based on ID that start with Q, get if 
+                dropdown have changed, store the values in those
+                dropdown menus. Gather data for a specific
+                student, or return data based on term*/
+                var Studentval = $('#QStudent').val();
+                var Termval = $('#QTerm').val();
+
+                if(Studentval == "None" && Termval=="None"){
+                    $("#Result").html("");
+                }
+                else{
+                    var URL = "http://"+hostname+":"+port+"/"+"trans";
+                    var params ="";
+                 
+                    params = {
+                      Student:Studentval,
+                      Term:Termval
+                        
+                    };
+                    
+                    $.ajax({
+                        type: "GET",
+                        url: URL,
+                        contentType:
+                        "text/plain; charset=utf-8",
+                        dataType:"text",
+                        data: params,
+                        success: function(msg) {
+                            
+                            $("#Result").html(msg);
+
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+				                $("#CredenPop").html("<h3>Error Connection to Server."+
+				                                     "Please Refresh Page or Start Server.</h3>");
+				                $("#CredenPop" ).popup( "open" );
+
+                        }            
+                    });
+                }
+          });
+        
+        });
+        function loadDropdown(){
+          /* Performs a server request and SQL query that
+          retrieves the Student Ids and term available in 
+          the database tables*/
+          var URL = "http://"+hostname+":"+port+"/"+"load";
+          $.ajax({
+              type: "GET",
+              url: URL,
+              contentType:
+              "text/plain; charset=utf-8",
+              dataType:"text",
+              success: function(msg) {
+                  msg = JSON.parse(msg);
+                  var TermOptions ="";
+                  var IdOptions ="";
+                  for (var i = 0; i < msg.terms.length; i++){
+                    TermOptions += '<option value ="' + msg.terms[i] + '">'+msg.terms[i]+'</option>';
+                  }
+
+                  for (var i = 0; i < msg.Ids.length; i++){
+                    IdOptions += '<option value ="' + msg.Ids[i] + '">'+msg.Ids[i]+'</option>';
+                  }
+                  /*Update Dropdown menus*/
+                  $("#QTerm").append(TermOptions);
+                  $("#QStudent").append(IdOptions);
+
+              },
+              error: function (xhr, ajaxOptions, thrownError) {
+                console.log("No data here.");
+              }  
+        });
+        
+        }
+    </script>
+  </head>
+  <body>
+    <div data-role="controlgroup" data-type="horizontal" align= "center" style="margin: 0 auto;">
+    <!--Table DropDown-->
+    <fieldset>
+          <legend>Select Table:</legend>
+          <select name= "TableType" id="TableType">
+              <option value="None" selected="selected">None</option>
+              <option value="student">Student</option>
+              <option value="course">Course</option>
+              <option value="grades">Grades</option>
+          </select>
+    </fieldset>
+    </div>
+    <div data-role="controlgroup" data-type="horizontal" align="center" style="margin: 0 auto;">
+        <!-- Student and Term Dropdown-->
+          <legend>Select Student and Term:</legend>
+          <label for="Student">Select Student</label>
+          <select name= "Student" id="QStudent">
+              <option value="None" selected="selected">None</option>
+          </select>
+          
+          <label for="Term">Select Term</label>
+          <select name= "Term" id="QTerm">
+              <option value="None" selected="selected">None</option>
+          </select>
+                    
+    </div>
+    <div id= "Result" align="center" style="margin: 0 auto; overflow:auto">
+        <!--Result Table-->
+    </div>
+    
+    <div id= "Transcript" align="center" style="margin: 0 auto; overflow:auto">
+        <!--Transcript Table-->
+    </div>
+  </body>
+</html>
+

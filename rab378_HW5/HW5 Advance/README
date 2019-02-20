@@ -1,0 +1,15 @@
+Program Author: Rashif Brown
+Program Files: rab378_HW5.html, rab378_HW5.js
+Program Description: This web application is a web app
+                     that uses a sql database which contains
+                     data on students. The user can see the different 
+                     tables that are available on view them in a html
+                     table format once the user click on that specific
+                     dropdrop option. The user can also click on 
+                     a students id, which will bring up the student's
+                     transcript in its entirety, or filter down to the
+                     term e.g. Winter16, Summer18, Spring17, Fall16.
+                     All outputs are in table format, all request are 
+                     sent to the server which performs a SQL query, and
+                     returns a formatted table.
+                   

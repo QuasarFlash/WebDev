@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Homework 2: Weather</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <style>
+        img {
+            display:block;
+            margin: auto;
+            width:60%;
+        }
+        h1,h2,p2 {
+            word-wrap: break-word;
+        }
+        .my_body {
+            width:100%; 
+            overflow:auto; 
+
+        }
+        .weather_container::after {
+            width:100%; 
+            overflow:auto; 
+            height: 400px; 
+            content:""; 
+            clear:both; 
+            display: none;
+        }
+        .imgAlign { 
+            float:left;
+            box-sizing: border-box;
+			overflow: auto; 
+			line-height: 1;
+            padding: 0px;
+			width:60%;
+		}
+		.imgAlign1 { 
+		    float:left;
+            box-sizing: border-box;
+			overflow: auto; 
+            padding: 5px;
+			width:40%;
+		}
+        .lcorners { 
+            float:left; 
+			overflow: auto; 
+			box-sizing: border-box; 
+            border-radius:10px;
+            border: 2px solid blue;
+			width:50%;
+			height:325px;
+		}
+        
+        .header {
+            background-color:DodgerBlue;
+            text-align: center;
+            overflow: auto;
+            padding: 0px;
+            white-space: wrap;
+            font-size:16px;
+            
+        }
+        .footer {
+            background-color:DodgerBlue;
+            text-align:center;
+            bottom: 0px;
+            padding: 0px;
+            font-size:16px;
+            overflow: auto;
+            white-space: wrap;
+            width: 100%;
+        }
+		
+		table {
+		    /*From w3schools table example*/
+			font-family: arial, sans-serif;
+			border-collapse: collapse;
+			width: 100%;
+		}
+    
+		td, th {
+			border: 1px solid #dddddd;
+			text-align: left;
+			padding: 8px;
+		}
+
+		tr:nth-child(even) {
+			background-color: #dddddd;
+		}
+		legend {
+		    font-size:18px;
+		}
+    </style>
+    <script type="text/javascript">
+        $(document).ready( function () {
+            $("#GoWeather").click(function () {
+                /*Jquery on GoWeather/Forecast click retrieved 
+                  user inputs and display weather.
+                */
+                var num = 7; 
+                var numDays;
+                var isInterval = $('input[name=getInterval]:checked').val();
+				var isTable_Fancy = $('input[name=displayType]:checked').val();
+                var Dayfilter = "day";
+                /*Based on user's selection determine the correct info to retrieve from Aeris
+                  default is 7 days
+                  if day and night the total data is twice what is needed
+                  if interval is hourly multiple by 24 because of the number of hours in a day
+                */
+                if (isInterval == "Night") {
+                    Dayfilter = "daynight";
+                    numDays = num*2;
+                }
+                else if(isInterval == "Hour"){
+                    Dayfilter = "1hr";
+                    numDays = num*24;
+                }
+                else if(isInterval == "Day"){
+                    numDays = num;
+                }
+                var id = $('#clientID').val();
+                var key = $('#secretKey').val();
+                /*Determine if user entered in information and popup warning if they did not*/
+                if(jQuery.trim(id).length == 0 || jQuery.trim(key).length == 0){
+                    if(locationFailed){
+                        $("#CredenPop").html("<h3>Please Refresh and Allow Location Access.</h3>");
+                    }
+                    else{
+                        $("#CredenPop").html("<h3>Please Enter Valid Credentials.</h3>");
+                    }
+
+                    $( "#CredenPop" ).popup( "open" );
+                    
+                }
+                else{
+                    var URL = "https://api.aerisapi.com/forecasts/"+latitude+","+longitude+"?&filter="+Dayfilter+"&limit="+numDays+"&client_id="+id+"&client_secret="+key;
+                    $.ajax({
+                        type: "GET",
+                        url: URL,
+                        contentType:
+                        "application/json; charset=utf-8",
+                        data: "{}",
+                        success: function(msg) {
+                            var json = msg;
+
+							WeatherDisplay(json, numDays);
+
+						    
+                            
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+					
+                            //$("#Weather").html("Error fetching " + URL + "<br>" + ajaxOptions + "<br>" + thrownError);
+						    $("#CredenPop").html("<h3>Error retrieving Aeris Weather Data. Please Refresh Page.</h3>");
+                        }            
+                    });
+                }
+            });
+        });
+		function createTable(TableData){
+		    /*Create a table from the given input of 
+		    Table Header and Data in  array form */
+			var fullTableBody ="";
+			var dataTable ="<tbody><tr>";
+			var header ="<thead><tr>";
+			var i = 0;
+			var j = 0;
+			var datapriority=1;
+			for( i = 0; i < TableData[0].length; i++){
+			    
+				header += "<th data-priority="+ datapriority +">"  + TableData[0][i] + "</th>";
+				datapriority+=1;
+			}
+			header += "</tr></thead>";
+			fullTableBody += header;
+			for(i = 1; i < TableData.length; i++){
+				dataTable = "<tr>";
+				for(j = 0; j < TableData[i].length; j++){
+					dataTable+= "<td>" + TableData[i][j] + "</td><br>";
+				}
+				dataTable += "</tr><br>";
+				fullTableBody += dataTable;
+			}
+			fullTableBody += "</tbody>";
+			return fullTableBody;
+			
+		}
+		
+		function WeatherDisplay(json, numDays){
+		    /*Table or Fancy based display for weather showing*/
+			
+			$(document).ready(function() {
+			    /*clear what is currently in table and format data
+			     make the table accessible on mobile devices also
+			    */
+			   var isTemp = $('input[name=temp]:checked').val();
+			   var isInterval = $('input[name=getInterval]:checked').val();
+			   var WhichDisplay = $('input[name=displayType]:checked').val();
+			    
+				$("#Weather").html("");
+				$('#Weather').html('<table data-role="table" data-mode="reflow" class="ui-responsive" id="WeatherTable"></table>');
+				var completeWeather = [["Date","Time of Day","Avg Temp","Weather","Humidity","Low Temp","High Temp"]]
+                if(isInterval == "Hour"){
+                    completeWeather[0].splice(1,0,"Hour");
+                }
+                /*Variable Initializations*/
+				var splitWeather = [];
+				var i = 0;
+				var date;
+				var avgTemp = "";
+				var minTemp = "";
+				var maxTemp = "";
+				var humidity = "";
+				var weather = "";
+				var TimeofDay="";
+				var period;
+				var hourMin = "";
+				var newDate, hour, mins, Fulltime;
+				for(i = 0;i < numDays;i++){
+  
+					period = json.response[0].periods[i];
+					/*Retrieve and arrange date and time*/
+					date = period.dateTimeISO;
+					newDate = new Date(date);
+					hour = newDate.getHours();
+					mins = (newDate.getMinutes() < 10 ?'0':'') + newDate.getMinutes() ;
+					Fulltime = newDate.toDateString();
+					
+					/*Weather and humidity json retrieval*/
+					weather = period.weather;
+					humidity = period.humidity + "%" ;
+					/*Switch and determine if the weather is at day or night*/
+					if (period.isDay == true) {
+                        TimeofDay = "Day";
+                    }
+                    else if(period.isDay ==false){
+                        TimeofDay="Night";
+                        if(WhichDisplay=="Fancy"){
+                            if (i == 0 ) {
+
+                                $("#Weather").append("<div class='lcorners'><br><img src=weatherIcons/na.png>"+
+                                                    "<br><center><h3>Time has passed.</h3></center></div>");
+                            }
+                        }
+                    }
+                    /*Change the units of measurement for temperature
+                      based on user's selection Fahrenheit or Celsius
+                    */
+                    splitWeather.push(Fulltime);
+					if (isTemp == "Fahrenheit") {
+                        avgTemp = (period.avgTempF  == null?'~':period.avgTempF) + "&#x2109";
+						maxTemp = (period.maxTempF == null?'~':period.maxTempF) + "&#x2109";
+						minTemp = (period.minTempF == null?'~':period.minTempF)  + "&#x2109";
+                    }
+                    else if (isTemp == "Celsius") {
+                        avgTemp = (period.avgTempC == null?'~':period.avgTempC) + "&#x2103";
+						minTemp = (period.minTempC  == null?'~':period.minTempC)  + "&#x2103";
+						maxTemp = (period.maxTempC == null?'~':period.maxTempC) + "&#x2103";
+                    }
+                    if(isInterval == "Hour"){
+                        if(WhichDisplay =="Table"){
+					        splitWeather.push(hour +":"+ mins);
+					    }
+					    else{                        
+					        hourMin = "<h3> Time: " + hour +":"+mins+ "</h3>";
+					    }
+					}
+					if(WhichDisplay == "Table"){
+					/*Add all information to array in order for table setup*/
+					    splitWeather.push(TimeofDay);
+					    splitWeather.push(avgTemp);					
+					    splitWeather.push(weather);
+					    splitWeather.push(humidity);
+					    splitWeather.push(minTemp);
+					    splitWeather.push(maxTemp);
+					    completeWeather.push(splitWeather);
+					    splitWeather = [];
+				    }
+				    else{
+				        /*Create Fancy display with images*/
+				        TableSrc = "<div class=lcorners><br>" +
+                                    "<div class=imgAlign><br>" +
+						                "<h2>"+TimeofDay+"</h2>" +
+                                        "<h3>"+Fulltime+"</h3>" +
+                                            hourMin +
+                                        "<h3>"+weather+"</h3>" +
+                                        "<h3>"+avgTemp+"</h3>" +
+                                        "<h3>Humidity: "+humidity+"</h3>" +
+                                    "</div>" +
+                                    "<div class=imgAlign1><br>" +
+                                        "<img src=weatherIcons/"+period.icon+"><br>" +
+                                    "</div>"+
+                                "</div>";
+
+                        $("#Weather").append(TableSrc);
+				    }
+				}
+				if(WhichDisplay =="Table"){
+				    $("#WeatherTable").html(createTable(completeWeather));
+				}
+				
+			});
+		
+		}
+        
+        </script>
+</head>
+    <body>
+        <div class="header" data-role="header" data-theme="b" data-position="fixed">
+            <h1>7-Day Weather</h1>   
+        </div>
+        
+        <div class="my_body">
+        
+            <fieldset>
+                <legend>Credentials</legend>
+                <input type="text" id="clientID" placeholder="Enter Aeris Client ID" data-clear-btn="true">
+                <input type="password" id="secretKey" placeholder="Enter Aeris Secret Key" data-clear-btn="true"/><br>
+            </fieldset>
+            
+            <fieldset>
+	            <legend>Weather Interval</legend>
+	            <label>Day<input type="radio" name="getInterval" id="getDay" value="Day" checked/></label>
+	            <label>Day & Night<input type="radio" name="getInterval" id="getNight" value="Night"/></label>
+	            <label>Hourly<input type="radio" name="getInterval" id="getHourly" value="Hour"/></label><br>
+	        </fieldset>
+	        
+            <fieldset>
+                <legend>Weather Format</legend>
+                <label>Table<input type="radio" name="displayType" id="getTable" value="Table" checked/></label>
+                <label>Fancy<input type="radio" name="displayType" id="getFancy" value="Fancy"/></label><br>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Weather Units</legend>
+                <label>&#x2103<input type="radio" name="temp" value="Celsius"/></label>
+                <label>&#x2109<input type="radio" name="temp" value="Fahrenheit" checked/></label>
+            </fieldset>
+            
+            <button class="ui-btn ui-corner-all ui-btn-b" id="GoWeather">Forecast</button>
+            
+            <div id="Location">
+                    <!--Location        -->
+            </div>
+            <div id= WeatherContainer class="weather_container">
+                <div id="Weather" >
+                    <!--Weather        -->
+                </div>
+            </div> 
+            
+        </div>
+        
+        <script>
+            /*Retrieve Location*/
+            var Location = document.getElementById("Location");
+            var latitude;
+            var longitude;
+            var locationFailed = 0;
+            function getPosition(position) {
+                latitude = position.coords.latitude.toFixed(5);
+                longitude = position.coords.longitude.toFixed(5);
+                Location.innerHTML = "<center><h2>Latitude: " + latitude + "&nbsp &nbsp" +"Longitude: " + longitude +"</h2></center>";
+            }
+            function PositionFail() {
+                locationFailed = 1;
+                Location.innerHTML = "Location Retrieval Fail";
+            }
+            if(navigator.geolocation){
+                navigator.geolocation.getCurrentPosition(getPosition, PositionFail);
+            }
+
+        </script>
+        <div data-role="popup" data-transition="flip" data-position-to="window" id="CredenPop">
+	        <!--Popup to warn User-->
+        </div>
+        
+        <div class="footer" data-role="footer" data-theme="b" data-position="fixed">
+            <h1>By: Rashif Brown</h1>  
+        </div>
+
+    </body>
+</html>

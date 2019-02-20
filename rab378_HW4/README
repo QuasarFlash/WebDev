@@ -1,0 +1,22 @@
+Program File Name: rab378_HW2.html
+Program Author: Rashif Brown
+Program Description: This web application is a combination of 
+                     several web apps. The use of Jquery's menu
+                     function gives the ability to navigate to 
+                     different website in this application.
+                     There is a HOME in the menu, which is 
+                     used to display instructions. There is 
+                     a Weather in the menu to display weather
+                     based on the location retrieved or entered.
+                     And there is Computation in the menu that 
+                     gives the user the ability to compute
+                     either summation or fibonaci of number
+                     entered.
+                     The user can click the menu icon, which will
+                     display three options as listed above. From
+                     there, it is all up to the user. The program
+                     makes use of a server to retrieve and display
+                     the weather and to do computations. All that
+                     is done on the client side is the layout/look 
+                     and feel of the website. 
+                   

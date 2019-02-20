@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Homework 4</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+    <link rel = "stylesheet" type = "text/css" href = "myStyle.css" />
+     <script type="text/javascript">
+        $(document).ready( function () {
+            var port = 8080;
+            var hostname = "localhost";
+            var initial = "http://"+hostname+":"+port+"/Home";
+            $.ajax({
+                    type: 'GET',
+                    url: initial,
+                    dataType: "html",
+                    success: function(response){
+                        $('#mycontent').html(response);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+				        $("#CredenPop").html("<h3>Error Connection to Server. Please Refresh Page or Start Server.</h3>");
+				        $("#CredenPop" ).popup( "open" );
+
+                    }  
+                });
+            $("#mypanel").find('button').on('click', function(event){
+                //event.preventDefault();
+           
+                var which = $(this).attr('value')
+                var URL ="http://"+hostname+":"+port+"/"+which;// $(this).attr('href');
+
+                $.ajax({
+                    type: 'GET',
+                    url: URL,
+                    dataType: "html",
+                    success: function(response){
+                        $('#mycontent').html(response).enhanceWithin();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+				        $("#CredenPop").html("<h3>Error Connection to Server. Please Refresh Page or Start Server.</h3>");
+				        $("#CredenPop" ).popup( "open" );
+
+                    }  
+                });
+                $( "#mypanel" ).trigger( "updatelayout" );
+               $( "#mypanel" ).panel( "close" );
+            });
+
+        });
+     </script>
+    </head>
+    <body>
+        
+        <div data-role="page">
+
+            <div data-role="panel" id="mypanel" data-display="reveal" data-position-fixed="true">
+                <button class="ui-btn" value="Home">Home</button>
+                <button class="ui-btn" value="Weather">Weather</button>
+                <button class="ui-btn" value="Calculator">Computation</button>
+            </div>
+            
+            <div class="header" data-role="header" data-tap-toggle="false" data-theme="b" data-position="fixed">
+                <a href="#mypanel" data-rel="close">Menu</a>
+                <h1>Homework 4</h1>  
+            </div>
+            
+            <div data-role="content" id="mycontent">
+                <!-- Content    -->
+            </div>
+
+            <div class="footer" data-role="footer" data-tap-toggle="false" data-theme="b" data-position="fixed">
+                <h1>By: Rashif Brown</h1>  
+            </div>
+        
+        </div><!-- page -->
+        
+        <div data-role="popup" data-transition="flip" data-position-to="window" id="CredenPop">
+	        <!--Popup to warn User-->
+        </div>
+        
+    </body>
+</html>

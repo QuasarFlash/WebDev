@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Homework One: Fibonacci</title>
+    <!-- Compute Fibonacci numbers
+         Author: Rashif Brown
+         Program: Website that can be used to
+                  compute the fibonacci sequence.
+                  Displays the results in a table,
+                  with the entered value at the beginning.
+    -->
+    <style>
+         /* display shifted to the left by 40px,
+         fibonacci answer style set to bold,
+         and table cells spaced for easy reading,
+         Allow display to be somewhat responsive,
+         changing size as you resize window
+         */
+        .mystyle {display:none;padding-left:40px;}
+        .myAnsstyle {display: none; padding-left: 40px; font-weight: bold }
+        th,td {
+            padding:5px
+        }
+        p, h2, input, figcaption,div{
+            font-size:1.7vw
+        }
+    </style>
+    <script type="text/javascript">
+    
+        function FibVal() {
+            //Largest fibonacci sequence that can be displayed
+            var max_fib = 1476;
+            //Javascript max character length before rounding
+            var MAX_NUMBER_LENGTH = 16;
+            //Retrieve user entered input
+            var userNum = document.getElementById("userIn").value;
+            var userInput = parseInt(Number(userNum));
+            //Retrieve div where answer will display
+            var result = document.getElementById("fibAns");
+            //Retrieve div where warnings will display
+            var LowAccuracy = document.getElementById("fibLowAccuracy");
+            //Retrieve divs where table results will display
+            var Tresult = document.getElementById("Tablediv");
+            var TableNum = document.getElementById("fibTable");
+            
+            if (isNaN(userInput)) {
+                // Display Invalid Input to user on inputs not numbers 
+                result.innerHTML = "Invalid Input";
+                Tresult.style.display = "none";
+                result.style.display ="flex";
+            }
+            else if ((userInput < 0)) {
+                //Displayed if user value is a negative number
+                result.innerHTML = "Cannot compute Fib of negative integer";
+                Tresult.style.display = "none";
+                result.style.display ="flex";
+            }
+            else if (userInput >= 0 && userInput <= max_fib) {
+                var fibNum = [0,1]; //Initial fibonacci values
+                var i; //loop variable
+                var TableFib = "<tr><td align='center'>n</td>" +
+                               "<td align='center'>Fib(n)</td></tr>\n";
+                // Compute all Fibonacci integers up to users input
+                for (i = 2; i <= userInput; i++) {
+                    fibNum[fibNum.length] = fibNum[i-1]+fibNum[i-2];    
+                }
+                //Format Table with Fibonacci numbers 
+                for (i = 0; i <= userInput; i++) {
+                    TableFib += "<tr><td align='center'>"+i+"</td>" +
+                                "<td padding='5px' align='right'>"+fibNum[i]+"</td></tr>\n";
+                }
+                // Display warning to user about accuracy beyond n > 79
+                if (fibNum[fibNum.length-1].toString().length > MAX_NUMBER_LENGTH) {
+                    LowAccuracy.innerHTML = "Fibonacci Integers n > 78 are not"+
+                                            "completely accurate. <br>" +
+                                            "Javascript integers are " +
+                                            "accurate up to 16 characters.";
+                    LowAccuracy.style.display ="flex" ;
+                }
+                else{
+                    // Toggle warning off, if on before
+                    LowAccuracy.style.display ="none" ;
+                }
+                //Set the HTML test to display
+                result.innerHTML = "Fib("+userInput+")"+" = "+fibNum[userInput];
+                TableNum.innerHTML = TableFib;
+            //Activate the divs that were hidden before
+            result.style.display ="flex";
+            Tresult.style.display = "flex"; 
+            }
+            else{
+                //Display warning about fibonacci numbers range.
+                //Beyond n > 1479 the value is inf, not actual numerical value
+                LowAccuracy.innerHTML = "Please Enter Value within range:"+
+                                        " 0 < n <= " + max_fib;
+                LowAccuracy.style.display ="flex" ;
+                Tresult.style.display = "none";
+                result.style.display = "none";
+            }
+        }
+    </script>   
+</head>
+<body>
+    <h2>Fibonacci Numbers</h2>
+    <p> Fibonacci Numbers are an integer sequence,<br>
+        in which every number after the first two <br>
+        is the sum of the two preceding ones <br>
+    </p>
+    <!-- Brief History of Fibonacci numbers-->
+    <p> According to Wikipedia sources, the sequence <br>
+        was first found in Pingala poetry. The sequence <br>
+        is named after Leonardo of Pisa, and introduced <br>
+        to the Western mathematics in his 1202 book
+        "Liber Abaci"
+    </p>
+    <!--Method for Fibonacci-->
+    <figure>
+        
+        <img src="http://www.casinonewsdaily.com/wp-content/uploads/2015/05/fibonacci_diagram.svg"
+            height="50%" width="50%"><br>
+        </img>
+        <figcaption><h3>Formula for computing Fibonacci Numbers</h3></figcaption>
+    </figure>
+     <p>Enter Number:<input type="text" id="userIn" placeholder="Fibonacci integer term"> <br>
+    <input type="button" id="userBtn" value="Compute" onclick="FibVal();"></button></p>
+    
+      <br> <!--Space separator-->
+      <br>
+    <div id="fibAns" class='myAnsstyle'>
+            <!--Empty div for Answer here-->
+    </div>
+    <div id= "fibLowAccuracy" class='mystyle'>
+        <!--Warnings-->
+    </div>
+    <div id="Tablediv" class='mystyle'>
+        <table id="fibTable" border= 2px;>
+            <!--Table will display on compute-->
+        </table> 
+    </div>
+    <!--Method to bind enter key to the compute button
+        was retrieve from w3schools
+        https://www.w3schools.com/howto/howto_js_trigger_button_enter.asp
+    -->
+    <script type="text/javascript">
+        // Get the input field
+        var input = document.getElementById("userIn");
+        // Execute a function when the user releases a key on the keyboard
+        input.addEventListener("keyup", function(event) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+          // Trigger the button element with a click
+          document.getElementById("userBtn").click();
+        }
+    });
+    </script>
+</body>
+</html>
